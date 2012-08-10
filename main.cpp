@@ -22,7 +22,7 @@ extern "C" {
 
 
 bool
-encode_data(char* result, char* filename, long length)
+encode_data(crc_t* result, char* filename, long length)
 {
 	FILE* handle = fopen(filename, "rb");
 	if (handle == NULL) {
@@ -30,9 +30,15 @@ encode_data(char* result, char* filename, long length)
 			filename, strerror(errno));
 		return false;
 	}
+
 	char* buffer = (char*)calloc(BLOCK_SIZE + 1, sizeof(char));
+	if (buffer == NULL) {
+		printf("   ! %s: \033[31mError: %s\033[0m\n",
+			filename, strerror(errno));
+	}
 
 	int pos;
+	long block = 0;
 	for (pos = 0; pos < length; pos += BLOCK_SIZE) {
 		memset(buffer, 0, BLOCK_SIZE);
 		fseek(handle, pos, SEEK_SET);
@@ -40,7 +46,8 @@ encode_data(char* result, char* filename, long length)
 		crc_t crc = crc_init();
 		crc = crc_update(crc, buffer, BLOCK_SIZE);
 		crc = crc_finalize(crc);
-		sprintf(result, "%s%04lX", result, (unsigned long)crc);
+		result[block] = crc;
+		block++;
 	}
 	fclose(handle);	// close file
 
@@ -55,12 +62,17 @@ process_file(char* filename, SignatureDB* db)
 	struct stat st;
 	stat(filename, &st);
 
-	char* checksum = (char*)calloc(5, (st.st_size / BLOCK_SIZE));
+	crc_t* checksum = (crc_t*)calloc((st.st_size / BLOCK_SIZE), sizeof(crc_t));
 
-	encode_data(checksum, filename, st.st_size);
+	if (!encode_data(checksum, filename, st.st_size)) {
+		free(checksum);
+		return false;
+	}
 
-	int result = db->Search(checksum);
-	free(checksum);
+	char matchName[SIGNATURE_MAX_NAME];
+	int result = 0;
+	db->Search(checksum, (st.st_size / BLOCK_SIZE),
+		matchName, &result);
 
 	int fgColor = 0;
 	if (result > THRESHOLD_CRITICAL) {
@@ -71,9 +83,10 @@ process_file(char* filename, SignatureDB* db)
 		fgColor = 32;
 	}
 
-	printf("   * %s: %d blocks checked, chance of infection: "
+	printf("   * %s: %ld blocks checked, chance of infection: "
 		"\033[%dm%d%%\033[0m\n", filename, (st.st_size / BLOCK_SIZE),
 		fgColor, result);
+	free(checksum);
 
 	return true;
 }
@@ -89,7 +102,7 @@ main(int argc, char* argv[])
 	}
 	printf(" + Loading rootkit signature database... ");
 	SignatureDB* rootkitDB = new SignatureDB((char*)"db/virii.db");
-	printf("[OK, %d records loaded]\n", rootkitDB->GetRecordCount());
+	printf("[OK, %ld records loaded]\n", rootkitDB->GetRecordCount());
 
 	printf(" + Scanning %d files...\n", argc - 1);
 	while (argc > 1) {

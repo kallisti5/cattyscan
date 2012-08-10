@@ -3,7 +3,10 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include "util.h"
 
 
 SignatureDB::SignatureDB(char* filename)
@@ -18,31 +21,76 @@ SignatureDB::SignatureDB(char* filename)
 	long length = ftell(handle);
 	fseek(handle, 0, SEEK_SET);
 
-	#define LINESZ 1024
+	#define LINESZ 262144
 	char buffer[LINESZ];
 	char delim[] = "|";
 
-	while (fgets(buffer, LINESZ, handle)) {
-		char* result = strtok(buffer, delim);
-		// TODO: result = Virii Name
-		//printf("%s", result);
-		result = strtok(NULL, delim);
-		// TODO: result = Virii Signature
-		//printf("%s", result);
+	// Find number of entries
+	while (fgets(buffer, LINESZ, handle))
 		fRows++;
+
+	// Allocate signature database
+	fSignature = (sigDB*)malloc(fRows * sizeof(sigDB));
+
+	fseek(handle, 0, SEEK_SET);
+
+	long index = 0;
+	while (fgets(buffer, LINESZ, handle)) {
+		// Store Signature Name
+		char* result = strtok(buffer, delim);
+		strncpy(fSignature[index].name, result, SIGNATURE_MAX_NAME);
+		// Store Signature
+		result = strtok(NULL, delim);
+		int hexPos = 0;
+		int dataPos = 0;
+		while (hexPos < strlen(result) && dataPos < SIGNATURE_MAX) {
+			char hexString[] = { result[hexPos],
+				result[hexPos + 1],
+				result[hexPos + 2],
+				result[hexPos + 3] };
+			//printf("Broken apart: %s\n", hexString);
+			long blockValue = htoi(hexString);
+			fSignature[index].signature[dataPos] = blockValue;
+			//printf("Stored: 0x%04X\n", fSignature[index].signature[dataPos]);
+			hexPos += 4;
+			dataPos++;
+		}
+		fSignature[index].crcBlocks = hexPos;
+		index++;
 	}
+	// index should eq fRows here
+
 	fclose(handle);
 }
 
 
 SignatureDB::~SignatureDB()
 {
+	free(fSignature);
 }
 
 
-int
-SignatureDB::Search(char* data)
+bool
+SignatureDB::Search(crc_t* data, long blocks, char* matchName, int* hitrate)
 {
-	//printf("%s\n", data);
-	return 60;
+	long record = 0;
+	while (record < fRows) {
+		int block = 0;
+		int matches = 0;
+		while (block < blocks && block < fSignature[record].crcBlocks) {
+			matches += (data[block] == fSignature[record].signature[block]);
+			//printf("block %d %04lX vs %04lX\n", block,
+			//	data[block], fSignature[record].signature[block]);
+			block++;
+		}
+		*hitrate = (matches / block) * 100;
+		if (hitrate > 0) {
+			matchName = fSignature[record].name;
+			return true;
+		}
+
+		record++;
+	}
+
+	return 0;
 }
