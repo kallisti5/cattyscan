@@ -16,10 +16,6 @@ extern "C" {
 /* CRC block sizes (in bytes) */
 #define BLOCK_SIZE	64
 
-/* Suspect thresholds */
-#define THRESHOLD_CRITICAL 90
-#define THRESHOLD_POSSIBLE 50
-
 
 bool
 encode_data(crc_t* result, char* filename, long length)
@@ -79,21 +75,26 @@ process_file(char* filename, SignatureDB* db)
 
 	char matchName[SIGNATURE_MAX_NAME];
 	int result = 0;
-	db->Search(checksum, (st.st_size / BLOCK_SIZE),
+	bool trigger = db->Search(checksum, (st.st_size / BLOCK_SIZE),
 		matchName, &result);
 
 	int fgColor = 0;
-	if (result > THRESHOLD_CRITICAL) {
-		fgColor = 31;
-	} else if (result > THRESHOLD_POSSIBLE) {
-		fgColor = 35;
+	if (trigger) {
+		if (result > THRESHOLD_CRITICAL)
+			fgColor = 31;
+		else
+			fgColor = 35;
+
+		printf("   * %s: %ld blocks checked, chance of infection: "
+			"\033[%dm%d%%\033[0m (%s)\n", filename, (st.st_size / BLOCK_SIZE),
+			fgColor, result, matchName);
 	} else {
 		fgColor = 32;
+		printf("   * %s: %ld blocks checked, chance of infection: "
+			"\033[%dm%d%%\033[0m\n", filename, (st.st_size / BLOCK_SIZE),
+			fgColor, result);
 	}
 
-	printf("   * %s: %ld blocks checked, chance of infection: "
-		"\033[%dm%d%%\033[0m\n", filename, (st.st_size / BLOCK_SIZE),
-		fgColor, result);
 	free(checksum);
 
 	return true;

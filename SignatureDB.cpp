@@ -88,10 +88,13 @@ SignatureDB::Search(crc_t* data, long blocks, char* matchName, int* hitrate)
 		else
 			*hitrate = 0;
 
+		#if 0
 		printf("%d blocks of %d blocks hit (rate %d%%)\n",
 			matches, block, *hitrate);
-		if (hitrate > 0) {
-			//matchName = fSignature[record].name;
+		#endif
+
+		if (*hitrate > THRESHOLD_POSSIBLE) {
+			strcpy(matchName, fSignature[record].name);
 			return true;
 		}
 		record++;
