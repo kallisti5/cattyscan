@@ -26,8 +26,11 @@ SignatureDB::SignatureDB(char* filename)
 	char delim[] = "|";
 
 	// Find number of entries
-	while (fgets(buffer, LINESZ, handle))
+	while (fgets(buffer, LINESZ, handle)) {
+		if ((fRows % 25) == 0)
+			printf(".");
 		fRows++;
+	}
 
 	// Allocate signature database
 	fSignature = (sigDB*)calloc(fRows + 1, sizeof(sigDB));
@@ -38,20 +41,21 @@ SignatureDB::SignatureDB(char* filename)
 	while (fgets(buffer, LINESZ, handle)) {
 		// Store Signature Name
 		char* result = strtok(buffer, delim);
-
 		if (result == NULL) {
 			fRows--;
 			continue;
 		}
-
 		strncpy(fSignature[index].name, result, SIGNATURE_MAX_NAME);
+
 		// Store Signature
 		result = strtok(NULL, delim);
-
 		if (result == NULL) {
 			fRows--;
 			continue;
 		}
+
+		if ((index % 5) == 0)
+			printf(".");
 
 		int hexPos = 0;
 		int dataPos = 0;

@@ -110,8 +110,9 @@ main(int argc, char* argv[])
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
 	}
-	printf(" + Loading rootkit signature database... ");
-	SignatureDB* rootkitDB = new SignatureDB((char*)"db/virii.db");
+	printf(" + Loading rootkit signature database...");
+
+	SignatureDB* rootkitDB = new SignatureDB((char*)"db/rootkits.db");
 	printf("[OK, %ld records loaded]\n", rootkitDB->GetRecordCount());
 
 	printf(" + Scanning %d files...\n", argc - 1);

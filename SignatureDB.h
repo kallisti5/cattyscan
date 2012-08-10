@@ -6,7 +6,7 @@
 
 
 #define SIGNATURE_MAX_NAME	32
-#define SIGNATURE_MAX		4096
+#define SIGNATURE_MAX		65535
 
 /* Suspect thresholds */
 #define THRESHOLD_CRITICAL 90
