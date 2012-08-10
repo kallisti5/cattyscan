@@ -1,12 +1,12 @@
 
-#include "ViriiDB.h"
+#include "SignatureDB.h"
 
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
 
-ViriiDB::ViriiDB(char* filename)
+SignatureDB::SignatureDB(char* filename)
 	:
 	fRows(0)
 {
@@ -35,13 +35,13 @@ ViriiDB::ViriiDB(char* filename)
 }
 
 
-ViriiDB::~ViriiDB()
+SignatureDB::~SignatureDB()
 {
 }
 
 
 int
-ViriiDB::Search(char* data)
+SignatureDB::Search(char* data)
 {
 	//printf("%s\n", data);
 	return 60;

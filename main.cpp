@@ -10,7 +10,7 @@ extern "C" {
 }
 
 
-#include "ViriiDB.h"
+#include "SignatureDB.h"
 
 
 /* CRC block sizes (in bytes) */
@@ -50,7 +50,7 @@ encode_data(char* result, char* filename, long length)
 
 
 bool
-process_file(char* filename, ViriiDB* db)
+process_file(char* filename, SignatureDB* db)
 {
 	struct stat st;
 	stat(filename, &st);
@@ -87,13 +87,13 @@ main(int argc, char* argv[])
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
 	}
-	printf(" + Loading rootkit heuristics database... ");
-	ViriiDB* rootkitDB = new ViriiDB((char*)"db/virii.db");
+	printf(" + Loading rootkit signature database... ");
+	SignatureDB* rootkitDB = new SignatureDB((char*)"db/virii.db");
 	printf("[OK, %d records loaded]\n", rootkitDB->GetRecordCount());
 
 	printf(" + Scanning %d files...\n", argc - 1);
 	while (argc > 1) {
-		process_file(argv[argc-1], rootkitDB);
+		process_file(argv[argc - 1], rootkitDB);
 		argc--;
 	}
 	return 0;

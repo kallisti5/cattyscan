@@ -2,4 +2,4 @@ CC = cc ;
 C++ = c++ ;
 LINK = c++ ;
 
-Main bitvirii : main.cpp crc.c ViriiDB.cpp ;
+Main bitvirii : main.cpp crc.c SignatureDB.cpp ;
