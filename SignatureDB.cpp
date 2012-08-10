@@ -78,19 +78,24 @@ SignatureDB::Search(crc_t* data, long blocks, char* matchName, int* hitrate)
 		int block = 0;
 		int matches = 0;
 		while (block < blocks && block < fSignature[record].crcBlocks) {
-			matches += (data[block] == fSignature[record].signature[block]);
-			//printf("block %d %04lX vs %04lX\n", block,
-			//	data[block], fSignature[record].signature[block]);
+			matches
+				+= (data[block] == fSignature[record].signature[block]) ? 1 : 0;
 			block++;
 		}
-		*hitrate = (matches / block) * 100;
+
+		if (matches <= block)
+			*hitrate = (matches * 100 / block * 100) / 100;
+		else
+			*hitrate = 0;
+
+		printf("%d blocks of %d blocks hit (rate %d%%)\n",
+			matches, block, *hitrate);
 		if (hitrate > 0) {
-			matchName = fSignature[record].name;
+			//matchName = fSignature[record].name;
 			return true;
 		}
-
 		record++;
 	}
 
-	return 0;
+	return false;
 }

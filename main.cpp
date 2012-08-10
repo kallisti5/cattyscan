@@ -35,6 +35,8 @@ encode_data(crc_t* result, char* filename, long length)
 	if (buffer == NULL) {
 		printf("   ! %s: \033[31mError: %s\033[0m\n",
 			filename, strerror(errno));
+		fclose(handle);	// close file
+		return false;
 	}
 
 	int pos;
@@ -50,7 +52,6 @@ encode_data(crc_t* result, char* filename, long length)
 		block++;
 	}
 	fclose(handle);	// close file
-
 	free(buffer); // free buffer
 	return true;
 }
@@ -62,7 +63,14 @@ process_file(char* filename, SignatureDB* db)
 	struct stat st;
 	stat(filename, &st);
 
-	crc_t* checksum = (crc_t*)calloc((st.st_size / BLOCK_SIZE), sizeof(crc_t));
+	crc_t* checksum = (crc_t*)calloc((st.st_size / BLOCK_SIZE) + 1,
+		sizeof(crc_t));
+
+	if (checksum == NULL) {
+		printf("   ! %s: \033[31mError: %s\033[0m\n",
+			filename, strerror(errno));
+		return false;
+	}
 
 	if (!encode_data(checksum, filename, st.st_size)) {
 		free(checksum);
