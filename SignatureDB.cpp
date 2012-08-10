@@ -30,7 +30,7 @@ SignatureDB::SignatureDB(char* filename)
 		fRows++;
 
 	// Allocate signature database
-	fSignature = (sigDB*)malloc(fRows * sizeof(sigDB));
+	fSignature = (sigDB*)calloc(fRows + 1, sizeof(sigDB));
 
 	fseek(handle, 0, SEEK_SET);
 
@@ -38,9 +38,21 @@ SignatureDB::SignatureDB(char* filename)
 	while (fgets(buffer, LINESZ, handle)) {
 		// Store Signature Name
 		char* result = strtok(buffer, delim);
+
+		if (result == NULL) {
+			fRows--;
+			continue;
+		}
+
 		strncpy(fSignature[index].name, result, SIGNATURE_MAX_NAME);
 		// Store Signature
 		result = strtok(NULL, delim);
+
+		if (result == NULL) {
+			fRows--;
+			continue;
+		}
+
 		int hexPos = 0;
 		int dataPos = 0;
 		while (hexPos < strlen(result) && dataPos < SIGNATURE_MAX) {
@@ -48,7 +60,6 @@ SignatureDB::SignatureDB(char* filename)
 				result[hexPos + 1],
 				result[hexPos + 2],
 				result[hexPos + 3] };
-			//printf("Broken apart: %s\n", hexString);
 			long blockValue = htoi(hexString);
 			fSignature[index].signature[dataPos] = blockValue;
 			//printf("Stored: 0x%04X\n", fSignature[index].signature[dataPos]);

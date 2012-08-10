@@ -45,6 +45,7 @@ encode_data(crc_t* result, char* filename, long length)
 		crc = crc_update(crc, buffer, BLOCK_SIZE);
 		crc = crc_finalize(crc);
 		result[block] = crc;
+		//printf("%04X", result[block]);
 		block++;
 	}
 	fclose(handle);	// close file
