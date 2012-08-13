@@ -1,3 +1,9 @@
+/*
+ * Copyright, 2012 Alexander von Gluck - UNIXZen Software
+ *
+ * Released under the terms of the MIT license.
+ */
+
 
 #include "SignatureDB.h"
 

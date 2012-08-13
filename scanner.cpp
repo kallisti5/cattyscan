@@ -1,3 +1,10 @@
+/*
+ * Copyright, 2012 Alexander von Gluck - UNIXZen Software
+ *
+ * Released under the terms of the MIT license.
+ */
+
+
 #include "main.h"
 
 #include <errno.h>

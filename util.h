@@ -1,3 +1,12 @@
+/*
+ * Copyright, 2012 Alexander von Gluck - UNIXZen Software
+ *
+ * Released under the terms of the MIT license.
+ */
+#ifndef _UTIL_H
+#define _UTIL_H
+
+
 static unsigned int
 htoi(const char *ptr)
 {
@@ -20,3 +29,6 @@ htoi(const char *ptr)
 		ch = *(++ptr);
 	}
 }
+
+
+#endif /* _UTIL_H */
