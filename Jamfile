@@ -1,6 +1,9 @@
+SubDir TOP ;
+SubInclude TOP libvicious ;
+
 CC = cc ;
 C++ = c++ ;
 LINK = c++ ;
 
-Main bitvirii : scanner.cpp crc.c SignatureDB.cpp ;
-Main bitgen : generate.cpp crc.c ;
+Main vicious : scanner.cpp ;
+LinkLibraries vicious : libvicious ;

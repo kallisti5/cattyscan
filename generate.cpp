@@ -5,8 +5,6 @@
  */
 
 
-#include "main.h"
-
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,7 +15,7 @@ extern "C" {
 }
 
 
-#include "SignatureDB.h"
+#include "ViciousDB.h"
 
 
 /* CRC block sizes (in bytes) */

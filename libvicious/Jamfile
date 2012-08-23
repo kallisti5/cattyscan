@@ -1,0 +1,4 @@
+SubDir TOP libvicious ;
+SubDirHdrs [ FDirName $(TOP) libvicious includes ] ;
+
+Library libvicious : ViciousDB.cpp crc.c ;

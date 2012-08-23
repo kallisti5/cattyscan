@@ -3,12 +3,15 @@
  *
  * Released under the terms of the MIT license.
  */
-#ifndef _SIGNATUREDB_H
-#define _SIGNATUREDB_H
+#ifndef _VICIOUSDB_H
+#define _VICIOUSDB_H
 
 
 #include "crc.h"
 
+
+/* CRC block sizes (in bytes) */
+#define BLOCK_SIZE  512
 
 #define SIGNATURE_MAX_NAME	32
 #define SIGNATURE_MAX		65535
@@ -25,18 +28,21 @@ typedef struct {
 } sigDB;
 
 
-class SignatureDB
+class ViciousDB
 {
 public:
-				SignatureDB(char* filename);
-				~SignatureDB();
+				ViciousDB(char* filename);
+				~ViciousDB();
 
+		int		ScanFile(char* filename);
+		bool	EncodeFile(crc_t* result, char* filename, long length);
 		long	GetRecordCount() { return fRows; }
-		bool	Search(crc_t* data, long blocks, char* matchName, int* hitrate);
+
 private:
+		bool	Search(crc_t* data, long blocks, char* matchName, int* hitrate);
 		sigDB*	fSignature;
 		long	fRows;
 };
 
 
-#endif /* _SIGNATUREDB_H */
+#endif /* _VICIOUSDB_H */
