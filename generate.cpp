@@ -96,7 +96,7 @@ int
 main(int argc, char* argv[])
 {
 	if (argc < 2) {
-		printf("BitVirii fingerprint generator\n");
+		printf("Vicious fingerprint generator\n");
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
 	}

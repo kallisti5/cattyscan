@@ -16,7 +16,7 @@
 int
 main(int argc, char* argv[])
 {
-	printf("BitVirii Scanner\n");
+	printf("Vicious Scanner\n");
 	if (argc < 2) {
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
