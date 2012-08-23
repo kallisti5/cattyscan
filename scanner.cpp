@@ -21,10 +21,13 @@ main(int argc, char* argv[])
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
 	}
-	printf(" + Loading rootkit signature database...");
 
+	printf(" + Loading rootkit signature database...\n");
 	ViciousDB* rootkitDB = new ViciousDB((char*)"db/rootkits.db");
-	printf("[OK, %ld records loaded]\n", rootkitDB->GetRecordCount());
+	if (rootkitDB->GetRecordCount() == 0)
+		return 0;
+	else
+		printf(" + [%ld records loaded]\n", rootkitDB->GetRecordCount());
 
 	printf(" + Scanning %d files...\n", argc - 1);
 	while (argc > 1) {

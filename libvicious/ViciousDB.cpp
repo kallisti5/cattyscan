@@ -16,13 +16,17 @@
 #include "util.h"
 
 
+#define ERROR(x...) printf(" ! " x)
+
 ViciousDB::ViciousDB(char* filename)
 	:
 	fRows(0)
 {
 	FILE* handle = fopen(filename, "r");
-	if (handle == NULL)
-		printf("%s: %s\n", __func__, strerror(errno));
+	if (handle == NULL) {
+		ERROR("%s: %s: %s\n", __func__, filename, strerror(errno));
+		return;
+	}
 
 	fseek(handle, 0, SEEK_END);
 	long length = ftell(handle);
