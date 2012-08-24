@@ -12,11 +12,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "util.h"
 
+#define DEBUG 1
 
-#define ERROR(x...) printf(" ! " x)
+#ifdef DEBUG
+#define TRACE(x...) printf(" D " x)
+#else
+#define TRACE(x...)
+#endif
+#define ERROR(x...) printf(" \033[31m! Error:\033[0m " x)
+
 
 ViciousDB::ViciousDB(char* filename)
 	:
@@ -37,11 +45,8 @@ ViciousDB::ViciousDB(char* filename)
 	char delim[] = "|";
 
 	// Find number of entries
-	while (fgets(buffer, LINESZ, handle)) {
-		if ((fRows % 25) == 0)
-			printf(".");
+	while (fgets(buffer, LINESZ, handle))
 		fRows++;
-	}
 
 	// Allocate signature database
 	fSignature = (sigDB*)calloc(fRows + 1, sizeof(sigDB));
@@ -64,9 +69,6 @@ ViciousDB::ViciousDB(char* filename)
 			fRows--;
 			continue;
 		}
-
-		if ((index % 5) == 0)
-			printf(".");
 
 		int hexPos = 0;
 		int dataPos = 0;
@@ -103,21 +105,20 @@ ViciousDB::Search(crc_t* data, long blocks, char* matchName, int* hitrate)
 	while (record < fRows) {
 		int block = 0;
 		int matches = 0;
+
 		while (block < blocks && block < fSignature[record].crcBlocks) {
 			matches
 				+= (data[block] == fSignature[record].signature[block]) ? 1 : 0;
 			block++;
 		}
 
-		if (matches <= block)
-			*hitrate = (matches * 100 / block * 100) / 100;
-		else
+		if (block == 0)
 			*hitrate = 0;
+		else
+			*hitrate = (matches * 100) / block;
 
-		#if 0
-		printf("%d blocks of %d blocks hit (rate %d%%)\n",
-			matches, block, *hitrate);
-		#endif
+		TRACE("%d blocks of %d blocks hit (rate %d%%) : %s\n", matches, block,
+			*hitrate, fSignature[record].name);
 
 		if (*hitrate > THRESHOLD_POSSIBLE) {
 			strcpy(matchName, fSignature[record].name);
@@ -135,15 +136,13 @@ ViciousDB::EncodeFile(crc_t* result, char* filename, long length)
 {
 	FILE* handle = fopen(filename, "rb");
 	if (handle == NULL) {
-		printf("   ! %s: \033[31mError: %s\033[0m\n",
-			filename, strerror(errno));
+		ERROR("%s: %s\n", filename, strerror(errno));
 		return false;
 	}
 
 	char* buffer = (char*)calloc(BLOCK_SIZE + 1, sizeof(char));
 	if (buffer == NULL) {
-		printf("   ! %s: \033[31mError: %s\033[0m\n",
-			filename, strerror(errno));
+		ERROR("%s: %s\n", filename, strerror(errno));
 		fclose(handle);	// close file
 		return false;
 	}
@@ -177,8 +176,7 @@ ViciousDB::ScanFile(char* filename)
 		sizeof(crc_t));
 
 	if (checksum == NULL) {
-		printf("   ! %s: \033[31mError: %s\033[0m\n",
-			filename, strerror(errno));
+		ERROR("%s: %s\n", filename, strerror(errno));
 		return -1;
 	}
 
@@ -192,24 +190,8 @@ ViciousDB::ScanFile(char* filename)
 	bool trigger = Search(checksum, (st.st_size / BLOCK_SIZE),
 		matchName, &result);
 
-	#if 0
-	int fgColor = 0;
-	if (trigger) {
-		if (result > THRESHOLD_CRITICAL)
-			fgColor = 31;
-		else
-			fgColor = 35;
-
-		printf("   * %s: %ld blocks checked, chance of infection: "
-			"\033[%dm%d%%\033[0m (%s)\n", filename, (st.st_size / BLOCK_SIZE),
-			fgColor, result, matchName);
-	} else {
-		fgColor = 32;
-		printf("   * %s: %ld blocks checked, chance of infection: "
-			"\033[%dm%d%%\033[0m\n", filename, (st.st_size / BLOCK_SIZE),
-			fgColor, result);
-	}
-	#endif
+	if (result > 25)
+		ERROR("%s: found traces of %s\n", filename, matchName);
 
 	free(checksum);
 
