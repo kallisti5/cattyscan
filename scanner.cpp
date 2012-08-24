@@ -6,6 +6,7 @@
 
 
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -23,7 +24,13 @@ main(int argc, char* argv[])
 	}
 
 	printf(" + Loading rootkit signature database...\n");
-	ViciousDB* rootkitDB = new ViciousDB((char*)"db/rootkits.db");
+
+	char* home = getenv("HOME");
+	char databaseFile[PATH_MAX];
+	if (home != NULL)
+		snprintf(databaseFile, PATH_MAX, "%s/.vicious/rootkit.db", home);
+
+	ViciousDB* rootkitDB = new ViciousDB(databaseFile);
 	if (rootkitDB->GetRecordCount() == 0)
 		return 0;
 	else
