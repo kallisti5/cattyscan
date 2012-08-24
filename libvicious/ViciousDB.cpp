@@ -117,8 +117,10 @@ ViciousDB::Search(crc_t* data, long blocks, char* matchName, int* hitrate)
 		else
 			*hitrate = (matches * 100) / block;
 
-		TRACE("%d blocks of %d blocks hit (rate %d%%) : %s\n", matches, block,
-			*hitrate, fSignature[record].name);
+		if (*hitrate > 25) {
+			TRACE("%d blocks of %d blocks hit (rate %d%%) : %s\n", matches,
+				block, *hitrate, fSignature[record].name);
+		}
 
 		if (*hitrate > THRESHOLD_POSSIBLE) {
 			strcpy(matchName, fSignature[record].name);
