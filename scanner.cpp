@@ -34,32 +34,25 @@ main(int argc, char* argv[])
 		return 1;
 	}
 
-	printf(" + Loading rootkit signature database...\n");
+	printf(" + Loading vicious software database...\n");
 
 	char* home = getenv("HOME");
 	char databaseFile[PATH_MAX];
 	if (home != NULL)
-		snprintf(databaseFile, PATH_MAX, "%s/.vicious/rootkit.db", home);
+		snprintf(databaseFile, PATH_MAX, "%s/.vicious/vicious.db", home);
 
-	ViciousDB* rootkitDB = new ViciousDB(databaseFile);
-	if (rootkitDB->GetRecordCount() == 0)
+	ViciousDB* database = new ViciousDB(databaseFile);
+	if (database->GetRecordCount() == 0) {
+		delete database;
 		return 0;
-	else
-		printf(" + [%ld records loaded]\n", rootkitDB->GetRecordCount());
+	} else
+		printf(" + [%ld records loaded]\n", database->GetRecordCount());
 
 	printf(" + Scanning %d files...\n", argc - 1);
 	while (argc > 1) {
-		int result = rootkitDB->ScanFile(argv[argc - 1]);
-
-		if (result > 75)
-			ERROR("%s (%d%% infection chance)\n", argv[argc - 1], result);
-		else if (result > 45)
-			WARNING("%s (%d%% infection chance)\n", argv[argc - 1], result);
-//		else if (result >= 0)
-//			CLEAN("%s (%d%% infection chance)\n", argv[argc - 1], result);
-		// < 0 is error (which is displayed)
-
+		database->ScanFile(argv[argc - 1]);
 		argc--;
 	}
+	delete database;
 	return 0;
 }

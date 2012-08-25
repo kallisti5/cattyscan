@@ -112,11 +112,8 @@ ViciousDB::CheckSignature(char* hash)
 			index++;
 			continue;
 		}
-		if (memcmp(hash, fRecord[index].value, SHA_LENGTH) == 0) {
-			ERROR("MATCH!\n");
+		if (memcmp(hash, fRecord[index].value, SHA_LENGTH_MAX) == 0) {
 			return index;
-		} else {
-			ERROR("NO MATCH!\n");
 		}
 		index++;
 	}
@@ -125,10 +122,30 @@ ViciousDB::CheckSignature(char* hash)
 
 
 index_t
-ViciousDB::SearchString(char* string)
+ViciousDB::CheckString(FILE* handle)
 {
+	fseek(handle, 0, SEEK_END);
+	long length = ftell(handle);
+	fseek(handle, 0, SEEK_SET);
 
+	char* buffer = (char*)malloc(length + 1);
+	if (buffer == NULL)
+		return false;
 
+	fread(buffer, length, 1, handle);
+
+	index_t index = 0;
+	while (index < fRows) {
+		if (fRecord[index].type != RECORD_TEXT) {
+			// Skip non-text
+			index++;
+			continue;
+		}
+		if (strstr(buffer, fRecord[index].value) != NULL) {
+			return index;
+		}
+		index++;
+	}
 	return -1;
 }
 
@@ -140,11 +157,8 @@ ViciousDB::GenerateSHA(FILE* handle, char* result)
 	fseek(handle, 0, SEEK_SET);
 
 	unsigned char* buffer = (unsigned char*)malloc(length + 1);
-	if (buffer == NULL) {
-		ERROR("%s: %s\n", __func__, strerror(errno));
-		fseek(handle, 0, SEEK_SET);
+	if (buffer == NULL)
 		return false;
-	}
 
 	fread(buffer, length, 1, handle);
 
@@ -153,7 +167,7 @@ ViciousDB::GenerateSHA(FILE* handle, char* result)
 	SHA256_Update(&context, (unsigned char*)buffer, length);
 	SHA256_End(&context, result);
 
-	printf("SHA: %s\n", result);
+	//printf("SHA: %s\n", result);
 
 	free(buffer); // free buffer
 	return true;
@@ -169,8 +183,9 @@ ViciousDB::ScanFile(char* filename)
 		return -1;
 	}
 
-	char hash[SHA_LENGTH];
+	char hash[SHA_LENGTH_MAX];
 	if (!GenerateSHA(handle, hash)) {
+		ERROR("%s: %s\n", filename, strerror(errno));
 		fclose(handle);
 		return -1;
 	}
@@ -181,6 +196,18 @@ ViciousDB::ScanFile(char* filename)
 	if (index >= 0) {
 		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
 	}
+
+	index = CheckString(handle);
+
+	if (index >= 0) {
+		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
+	}
+
+	#if 0
+	} else {
+		CLEAN("%s: clean\n", filename);
+	}
+	#endif
 
 	fclose(handle);
 	return index;

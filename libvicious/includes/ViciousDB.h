@@ -27,7 +27,7 @@
 								+ RECORD_MAX_VALUE + 4
 
 /* Signature record */
-#define SHA_LENGTH				32 // Signature Length
+#define SHA_LENGTH_MAX			64 // SHA 512 would be the max
 
 /* Suspect thresholds */
 #define THRESHOLD_CRITICAL		90
@@ -55,7 +55,7 @@ public:
 
 private:
 		index_t	CheckSignature(char* hash);
-		index_t	SearchString(char* string);
+		index_t	CheckString(FILE* handle);
 
 		record*	fRecord;
 		long	fRows;
