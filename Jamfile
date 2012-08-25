@@ -6,4 +6,6 @@ C++ = c++ ;
 LINK = c++ ;
 
 Main vicious : scanner.cpp ;
+#Main generate : generate.cpp ;
 LinkLibraries vicious : libvicious ;
+#LinkLibraries generate : libvicious ;

@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "util.h"
+
 
 #define DEBUG 1
 
@@ -24,6 +24,8 @@
 #define TRACE(x...)
 #endif
 #define ERROR(x...) printf(" \033[31m! Error:\033[0m " x)
+#define WARNING(x...) printf(" \033[33m! Warning:\033[0m " x)
+#define CLEAN(x...) printf(" \033[37m+ Scanned:\033[0m " x)
 
 
 ViciousDB::ViciousDB(char* filename)
@@ -40,50 +42,52 @@ ViciousDB::ViciousDB(char* filename)
 	long length = ftell(handle);
 	fseek(handle, 0, SEEK_SET);
 
-	#define LINESZ 262144
-	char buffer[LINESZ];
-	char delim[] = "|";
+	char buffer[RECORD_MAX_TOTAL];
 
 	// Find number of entries
-	while (fgets(buffer, LINESZ, handle))
+	while (fgets(buffer, RECORD_MAX_TOTAL, handle))
 		fRows++;
 
 	// Allocate signature database
-	fSignature = (sigDB*)calloc(fRows + 1, sizeof(sigDB));
+	fRecord = (record*)calloc(fRows + 1, sizeof(record));
 
 	fseek(handle, 0, SEEK_SET);
 
-	long index = 0;
-	while (fgets(buffer, LINESZ, handle)) {
-		// Store Signature Name
+	index_t index = 0;
+	char delim[] = "|";
+	while (fgets(buffer, RECORD_MAX_TOTAL, handle)) {
+		// Store record type
 		char* result = strtok(buffer, delim);
 		if (result == NULL) {
 			fRows--;
 			continue;
 		}
-		strncpy(fSignature[index].name, result, SIGNATURE_MAX_NAME);
+		fRecord[index].type = atoi(result);
 
-		// Store Signature
+		// Store record Name
 		result = strtok(NULL, delim);
 		if (result == NULL) {
 			fRows--;
 			continue;
 		}
+		strncpy(fRecord[index].name, result, RECORD_MAX_NAME);
 
-		int hexPos = 0;
-		int dataPos = 0;
-		while (hexPos < strlen(result) && dataPos < SIGNATURE_MAX) {
-			char hexString[] = { result[hexPos],
-				result[hexPos + 1],
-				result[hexPos + 2],
-				result[hexPos + 3] };
-			long blockValue = htoi(hexString);
-			fSignature[index].signature[dataPos] = blockValue;
-			//printf("Stored: 0x%04X\n", fSignature[index].signature[dataPos]);
-			hexPos += 4;
-			dataPos++;
+		// Store record description
+		result = strtok(NULL, delim);
+		if (result == NULL) {
+			fRows--;
+			continue;
 		}
-		fSignature[index].crcBlocks = hexPos;
+		strncpy(fRecord[index].description, result, RECORD_MAX_DESCRIPTION);		
+
+		// Store data
+		result = strtok(NULL, delim);
+		if (result == NULL) {
+			fRows--;
+			continue;
+		}
+		strncpy(fRecord[index].value, result, RECORD_MAX_DESCRIPTION);		
+
 		index++;
 	}
 	// index should eq fRows here
@@ -94,108 +98,90 @@ ViciousDB::ViciousDB(char* filename)
 
 ViciousDB::~ViciousDB()
 {
-	free(fSignature);
+	free(fRecord);
 }
 
 
-bool
-ViciousDB::Search(crc_t* data, long blocks, char* matchName, int* hitrate)
+index_t
+ViciousDB::CheckSignature(char* hash)
 {
-	long record = 0;
-	while (record < fRows) {
-		int block = 0;
-		int matches = 0;
-
-		while (block < blocks && block < fSignature[record].crcBlocks) {
-			matches
-				+= (data[block] == fSignature[record].signature[block]) ? 1 : 0;
-			block++;
+	index_t index = 0;
+	while (index < fRows) {
+		if (fRecord[index].type != RECORD_SIGNATURE) {
+			// Skip non-signature
+			index++;
+			continue;
 		}
-
-		if (block == 0)
-			*hitrate = 0;
-		else
-			*hitrate = (matches * 100) / block;
-
-		if (*hitrate > 25) {
-			TRACE("%d blocks of %d blocks hit (rate %d%%) : %s\n", matches,
-				block, *hitrate, fSignature[record].name);
+		if (memcmp(hash, fRecord[index].value, SHA_LENGTH) == 0) {
+			ERROR("MATCH!\n");
+			return index;
+		} else {
+			ERROR("NO MATCH!\n");
 		}
-
-		if (*hitrate > THRESHOLD_POSSIBLE) {
-			strcpy(matchName, fSignature[record].name);
-			return true;
-		}
-		record++;
+		index++;
 	}
-
-	return false;
+	return -1;
 }
 
 
-bool
-ViciousDB::EncodeFile(crc_t* result, char* filename, long length)
+index_t
+ViciousDB::SearchString(char* string)
 {
-	FILE* handle = fopen(filename, "rb");
-	if (handle == NULL) {
-		ERROR("%s: %s\n", filename, strerror(errno));
-		return false;
-	}
 
-	char* buffer = (char*)calloc(BLOCK_SIZE + 1, sizeof(char));
+
+	return -1;
+}
+
+bool
+ViciousDB::GenerateSHA(FILE* handle, char* result)
+{
+	fseek(handle, 0, SEEK_END);
+	long length = ftell(handle);
+	fseek(handle, 0, SEEK_SET);
+
+	unsigned char* buffer = (unsigned char*)malloc(length + 1);
 	if (buffer == NULL) {
-		ERROR("%s: %s\n", filename, strerror(errno));
-		fclose(handle);	// close file
+		ERROR("%s: %s\n", __func__, strerror(errno));
+		fseek(handle, 0, SEEK_SET);
 		return false;
 	}
 
-	int pos;
-	long block = 0;
-	for (pos = 0; pos < length; pos += BLOCK_SIZE) {
-		memset(buffer, 0, BLOCK_SIZE);
-		fseek(handle, pos, SEEK_SET);
-		fread(buffer, BLOCK_SIZE, 1, handle);
-		crc_t crc = crc_init();
-		crc = crc_update(crc, buffer, BLOCK_SIZE);
-		crc = crc_finalize(crc);
-		result[block] = crc;
-		//printf("%04X", result[block]);
-		block++;
-	}
-	fclose(handle);	// close file
+	fread(buffer, length, 1, handle);
+
+	SHA256_CTX context;
+	SHA256_Init(&context);
+	SHA256_Update(&context, (unsigned char*)buffer, length);
+	SHA256_End(&context, result);
+
+	printf("SHA: %s\n", result);
+
 	free(buffer); // free buffer
 	return true;
 }
 
 
-int
+index_t
 ViciousDB::ScanFile(char* filename)
 {
-	struct stat st;
-	stat(filename, &st);
-
-	crc_t* checksum = (crc_t*)calloc((st.st_size / BLOCK_SIZE) + 1,
-		sizeof(crc_t));
-
-	if (checksum == NULL) {
+	FILE* handle = fopen(filename, "r");
+	if (handle == NULL) {
 		ERROR("%s: %s\n", filename, strerror(errno));
 		return -1;
 	}
 
-	if (!EncodeFile(checksum, filename, st.st_size)) {
-		free(checksum);
+	char hash[SHA_LENGTH];
+	if (!GenerateSHA(handle, hash)) {
+		fclose(handle);
 		return -1;
 	}
 
-	char matchName[SIGNATURE_MAX_NAME];
-	int result = 0;
-	bool trigger = Search(checksum, (st.st_size / BLOCK_SIZE),
-		matchName, &result);
+	long index = -1;
+	index = CheckSignature(hash);
 
-	if (result > 25)
-		ERROR("%s: found traces of %s\n", filename, matchName);
+	if (index >= 0) {
+		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
+	}
 
-	free(checksum);
-
-	return result;
+	fclose(handle);
+	return index;
 }

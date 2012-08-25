@@ -7,25 +7,40 @@
 #define _VICIOUSDB_H
 
 
-#include "crc.h"
+#include <stdio.h>
+
+#include "sha2.h"
 
 
-/* CRC block sizes (in bytes) */
-#define BLOCK_SIZE  512
+/* Record types */
+#define RECORD_UNKNOWN			0 << 0
+#define RECORD_SIGNATURE		1 << 0
+#define RECORD_TEXT				1 << 1
 
-#define SIGNATURE_MAX_NAME	32
-#define SIGNATURE_MAX		65535
+/* Record limits */
+#define RECORD_MAX_NAME			32
+#define RECORD_MAX_DESCRIPTION	1024
+#define RECORD_MAX_VALUE		65535
+#define RECORD_MAX_TEXT			1024
+#define RECORD_MAX_TOTAL		RECORD_MAX_NAME \
+								+ RECORD_MAX_DESCRIPTION \
+								+ RECORD_MAX_VALUE + 4
+
+/* Signature record */
+#define SHA_LENGTH				32 // Signature Length
 
 /* Suspect thresholds */
-#define THRESHOLD_CRITICAL 90
-#define THRESHOLD_POSSIBLE 50
+#define THRESHOLD_CRITICAL		90
+#define THRESHOLD_POSSIBLE		50
 
+typedef long index_t;
 
 typedef struct {
-	char	name[SIGNATURE_MAX_NAME + 1];
-	long	crcBlocks;
-	crc_t	signature[SIGNATURE_MAX + 1];
-} sigDB;
+	int			type;
+	char		name[RECORD_MAX_NAME + 1];
+	char		description[RECORD_MAX_DESCRIPTION + 1];
+	char		value[RECORD_MAX_VALUE + 1];
+} record;
 
 
 class ViciousDB
@@ -34,13 +49,15 @@ public:
 				ViciousDB(char* filename);
 				~ViciousDB();
 
-		int		ScanFile(char* filename);
-		bool	EncodeFile(crc_t* result, char* filename, long length);
-		long	GetRecordCount() { return fRows; }
+		index_t ScanFile(char* filename);
+		bool	GenerateSHA(FILE* handle, char* result);
+		index_t	GetRecordCount() { return fRows; }
 
 private:
-		bool	Search(crc_t* data, long blocks, char* matchName, int* hitrate);
-		sigDB*	fSignature;
+		index_t	CheckSignature(char* hash);
+		index_t	SearchString(char* string);
+
+		record*	fRecord;
 		long	fRows;
 };
 

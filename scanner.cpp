@@ -8,10 +8,12 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
 #include "ViciousDB.h"
+
 
 #ifdef DEBUG
 #define TRACE(x...) printf(" D " x)
@@ -21,6 +23,8 @@
 #define ERROR(x...) printf(" \033[31m! Error:\033[0m " x)
 #define WARNING(x...) printf(" \033[33m! Warning:\033[0m " x)
 #define CLEAN(x...) printf(" \033[37m+ Scanned:\033[0m " x)
+
+ 
 int
 main(int argc, char* argv[])
 {
