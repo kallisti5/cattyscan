@@ -28,7 +28,7 @@
 void
 display_match(record* db, char* filename)
 {
-	printf("   \033[31mA potentially vicious file was detected within the "
+	printf("   \033[33mA potentially vicious file was detected within the "
 		"search range!\033[0m\n");
 	printf("   ================================================================\n");
 	printf("     * File:\n");
@@ -76,20 +76,36 @@ main(int argc, char* argv[])
 
 	long fileCount = argc - 1;
 	long currentFile = argc - 1;
+	long currentFileIndex = 0;
 
+	int found = 0;
 	printf(" + Scanning %d files...\n", fileCount);
 	while (currentFile > 1) {
+
+		struct stat sb;
+		stat(argv[currentFile], &sb);
+		if ((sb.st_mode & S_IFMT) != S_IFREG) {
+			currentFile--;
+			continue;
+		}
+
 		index_t result = database->ScanFile(argv[currentFile]);
 		if (result >= 0) {
 			record dbRecord;
 			database->GetRecord(result, &dbRecord);
 			display_match(&dbRecord, argv[currentFile]);
+			found++;
 		}
-		long currentFileIndex = fileCount - currentFile;
-		if ((currentFileIndex % 26) / 25)
+		currentFileIndex = fileCount - currentFile;
+
+		if (!(currentFileIndex % 100) && currentFileIndex != 0)
 			printf(" - %ld files scanned...\n", currentFileIndex);
 		currentFile--;
 	}
 	delete database;
-	return 0;
+
+	printf(" * Scanning complete. \n");
+	printf(" * %ld of %ld files scanned. %d matches detected.\n",
+		currentFileIndex, fileCount, found);
+	return found;
 }
