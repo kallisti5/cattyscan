@@ -102,6 +102,18 @@ ViciousDB::~ViciousDB()
 }
 
 
+bool
+ViciousDB::GetRecord(index_t index, record* recordEntry)
+{
+	if (index < 0 || index > fRows)
+		return false;
+
+	memcpy(recordEntry, &fRecord[index], sizeof(record));
+
+	return true;
+}
+
+
 index_t
 ViciousDB::CheckSignature(char* hash)
 {
@@ -206,16 +218,20 @@ ViciousDB::ScanFile(char* filename)
 	}
 
 	long index = -1;
+
 	index = CheckSignature(hash);
 
 	if (index >= 0) {
 		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
+		fclose(handle);
+		return index;
 	}
 
 	index = CheckString(handle);
-
 	if (index >= 0) {
 		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
+		fclose(handle);
+		return index;
 	}
 
 	#if 0

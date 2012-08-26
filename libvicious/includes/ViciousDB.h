@@ -51,6 +51,8 @@ public:
 
 		index_t ScanFile(char* filename);
 		bool	GenerateSHA(FILE* handle, char* result);
+
+		bool	GetRecord(index_t index, record* recordEntry);
 		index_t	GetRecordCount() { return fRows; }
 
 private:

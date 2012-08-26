@@ -24,7 +24,33 @@
 #define WARNING(x...) printf(" \033[33m! Warning:\033[0m " x)
 #define CLEAN(x...) printf(" \033[37m+ Scanned:\033[0m " x)
 
+
+void
+display_match(record* db, char* filename)
+{
+	printf("   \033[31mA potentially vicious file was detected within the "
+		"search range!\033[0m\n");
+	printf("   ================================================================\n");
+	printf("     * File:\n");
+	printf("       %s\n\n", filename);
+	printf("     * Scan type: ");
+	switch (db->type) {
+		case RECORD_SIGNATURE:
+			printf("SHA256 signature scan\n");
+			break;
+		case RECORD_TEXT:
+			printf("Mallicious string search\n");
+			break;
+		default:
+			printf("Unknown\n");
+			break;
+	}
+	printf("     * Name: %s\n", db->name);
+	printf("     * Description: %s\n", db->description);
+	printf("   ================================================================\n");
+}
  
+
 int
 main(int argc, char* argv[])
 {
@@ -48,10 +74,21 @@ main(int argc, char* argv[])
 	} else
 		printf(" + [%ld records loaded]\n", database->GetRecordCount());
 
-	printf(" + Scanning %d files...\n", argc - 1);
-	while (argc > 1) {
-		database->ScanFile(argv[argc - 1]);
-		argc--;
+	long fileCount = argc - 1;
+	long currentFile = argc - 1;
+
+	printf(" + Scanning %d files...\n", fileCount);
+	while (currentFile > 1) {
+		index_t result = database->ScanFile(argv[currentFile]);
+		if (result >= 0) {
+			record dbRecord;
+			database->GetRecord(result, &dbRecord);
+			display_match(&dbRecord, argv[currentFile]);
+		}
+		long currentFileIndex = fileCount - currentFile;
+		if ((currentFileIndex % 26) / 25)
+			printf(" - %ld files scanned...\n", currentFileIndex);
+		currentFile--;
 	}
 	delete database;
 	return 0;
