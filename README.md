@@ -7,5 +7,5 @@ ____   ____.__       .__                       _________   ____
                    \/                     \/        \/         
 ```
 A signature based
-scanner for malicious
+scanner for mallicious
 files.
