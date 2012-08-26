@@ -7,6 +7,9 @@
 #define _UTIL_H
 
 
+#include <string.h>
+
+
 static unsigned int
 htoi(const char *ptr)
 {
@@ -28,6 +31,27 @@ htoi(const char *ptr)
 			return value;
 		ch = *(++ptr);
 	}
+}
+
+
+static const char*
+memmem(const char* data, size_t data_len, const char* query)
+{
+	const char *p = data;
+
+	size_t query_len = strlen(query);
+
+	while (1) {
+		if (data + data_len - p < query_len)
+			break;
+		if (*p == query[0]) {
+			if (memcmp(p, query, query_len) == 0) {
+				return p;
+			}
+		}
+		p++;
+	}
+	return NULL;
 }
 
 

@@ -86,7 +86,7 @@ ViciousDB::ViciousDB(char* filename)
 			fRows--;
 			continue;
 		}
-		strncpy(fRecord[index].value, result, RECORD_MAX_DESCRIPTION);		
+		strncpy(fRecord[index].value, result, RECORD_MAX_VALUE);		
 
 		index++;
 	}
@@ -108,7 +108,7 @@ ViciousDB::CheckSignature(char* hash)
 	index_t index = 0;
 	while (index < fRows) {
 		if (fRecord[index].type != RECORD_SIGNATURE) {
-			// Skip non-signature
+			// Skip non-signature records
 			index++;
 			continue;
 		}
@@ -125,27 +125,42 @@ index_t
 ViciousDB::CheckString(FILE* handle)
 {
 	fseek(handle, 0, SEEK_END);
-	long length = ftell(handle);
+	long fileLength = ftell(handle);
 	fseek(handle, 0, SEEK_SET);
 
-	char* buffer = (char*)malloc(length + 1);
+	char* buffer = (char*)malloc(fileLength + 1);
 	if (buffer == NULL)
 		return false;
 
-	fread(buffer, length, 1, handle);
+	fread(buffer, fileLength, 1, handle);
 
 	index_t index = 0;
 	while (index < fRows) {
 		if (fRecord[index].type != RECORD_TEXT) {
-			// Skip non-text
+			// Skip non-text records
 			index++;
 			continue;
 		}
-		if (strstr(buffer, fRecord[index].value) != NULL) {
+		long hexLen = strlen(fRecord[index].value) - 1;
+
+		long i = 0;
+		long hexPos = 0;
+		char data[hexLen + 1];
+		while (i < hexLen) {
+			char hexStr[] = { fRecord[index].value[hexPos], fRecord[index].value[hexPos + 1] };
+			data[i] = htoi(hexStr);
+			i++;
+			hexPos += 2;
+		}
+		data[i] = '\0';
+
+		if (memmem(buffer, fileLength, data) != NULL) {
+			free(buffer);
 			return index;
 		}
 		index++;
 	}
+	free(buffer);
 	return -1;
 }
 
