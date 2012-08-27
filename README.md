@@ -1,11 +1,20 @@
 ```
-____   ____.__       .__                       _________   ____
-\   \ /   /|__| ____ |__| ____  __ __  ______ /  _  \   \ /   /
- \   Y   / |  |/ ___\|  |/  _ \|  |  \/  ___//  /_\  \   Y   / 
-  \     /  |  \  \___|  (  <_> )  |  /\___ \/    |    \     /  
-   \___/   |__|\___  >__|\____/|____//____  >____|__  /\___/   
-                   \/                     \/        \/         
+_________         __    __           _________                     
+\_   ___ \_____ _/  |__/  |_ ___.__./   _____/ ____ _____    ____  
+/    \  \/\__  \\   __\   __<   |  |\_____  \_/ ___\\__  \  /    \ 
+\     \____/ __ \|  |  |  |  \___  |/        \  \___ / __ \|   |  \
+ \______  (____  /__|  |__|  / ____/_______  /\___  >____  /___|  /
+        \/     \/            \/            \/     \/     \/     \/ 
 ```
-A signature based
-scanner for mallicious
-files.
+http://cattyscan.net
+A scanner for vicious and malicious files.
+---
+
+CattyScan supports the following detection methods:
+*   SHA256 signature match
+*   Binary search
+*   More to come!
+
+CattyScan supports the following compressed archives:
+*   TODO
+
