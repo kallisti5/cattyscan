@@ -1,6 +1,7 @@
 SubDir TOP ;
 SubInclude TOP libcatty ;
 
+LOCATE_TARGET = $(TOP) ;
 CC = cc ;
 C++ = c++ ;
 LINK = c++ ;
