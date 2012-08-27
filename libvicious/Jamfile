@@ -1,4 +1,0 @@
-SubDir TOP libvicious ;
-SubDirHdrs [ FDirName $(TOP) libvicious includes ] ;
-
-Library libvicious : sha2.cpp ViciousDB.cpp ;

@@ -5,7 +5,7 @@
  */
 
 
-#include "ViciousDB.h"
+#include "CattyDB.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -28,7 +28,7 @@
 #define CLEAN(x...) printf(" \033[37m+ Scanned:\033[0m " x)
 
 
-ViciousDB::ViciousDB(char* filename)
+CattyDB::CattyDB(char* filename)
 	:
 	fRows(0)
 {
@@ -96,14 +96,14 @@ ViciousDB::ViciousDB(char* filename)
 }
 
 
-ViciousDB::~ViciousDB()
+CattyDB::~CattyDB()
 {
 	free(fRecord);
 }
 
 
 bool
-ViciousDB::GetRecord(index_t index, record* recordEntry)
+CattyDB::GetRecord(index_t index, record* recordEntry)
 {
 	if (index < 0 || index > fRows)
 		return false;
@@ -115,7 +115,7 @@ ViciousDB::GetRecord(index_t index, record* recordEntry)
 
 
 index_t
-ViciousDB::CheckSignature(char* hash)
+CattyDB::CheckSignature(char* hash)
 {
 	index_t index = 0;
 	while (index < fRows) {
@@ -134,7 +134,7 @@ ViciousDB::CheckSignature(char* hash)
 
 
 index_t
-ViciousDB::CheckString(FILE* handle)
+CattyDB::CheckString(FILE* handle)
 {
 	fseek(handle, 0, SEEK_END);
 	long fileLength = ftell(handle);
@@ -177,7 +177,7 @@ ViciousDB::CheckString(FILE* handle)
 }
 
 bool
-ViciousDB::GenerateSHA(FILE* handle, char* result)
+CattyDB::GenerateSHA(FILE* handle, char* result)
 {
 	fseek(handle, 0, SEEK_END);
 	long length = ftell(handle);
@@ -202,7 +202,7 @@ ViciousDB::GenerateSHA(FILE* handle, char* result)
 
 
 index_t
-ViciousDB::ScanFile(char* filename)
+CattyDB::ScanFile(char* filename)
 {
 	FILE* handle = fopen(filename, "r");
 	if (handle == NULL) {

@@ -3,8 +3,8 @@
  *
  * Released under the terms of the MIT license.
  */
-#ifndef _VICIOUSDB_H
-#define _VICIOUSDB_H
+#ifndef _CATTYDB_H
+#define _CATTYDB_H
 
 
 #include <stdio.h>
@@ -43,11 +43,11 @@ typedef struct {
 } record;
 
 
-class ViciousDB
+class CattyDB
 {
 public:
-				ViciousDB(char* filename);
-				~ViciousDB();
+				CattyDB(char* filename);
+				~CattyDB();
 
 		index_t ScanFile(char* filename);
 		bool	GenerateSHA(FILE* handle, char* result);
@@ -64,4 +64,4 @@ private:
 };
 
 
-#endif /* _VICIOUSDB_H */
+#endif /* _CATTYDB_H */

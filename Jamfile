@@ -1,11 +1,9 @@
 SubDir TOP ;
-SubInclude TOP libvicious ;
+SubInclude TOP libcatty ;
 
 CC = cc ;
 C++ = c++ ;
 LINK = c++ ;
 
-Main vicious : scanner.cpp ;
-#Main generate : generate.cpp ;
-LinkLibraries vicious : libvicious ;
-#LinkLibraries generate : libvicious ;
+Main cattyscan : scanner.cpp ;
+LinkLibraries cattyscan : libcatty ;

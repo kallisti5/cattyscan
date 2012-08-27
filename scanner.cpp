@@ -12,7 +12,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "ViciousDB.h"
+#include "CattyDB.h"
 
 
 #ifdef DEBUG
@@ -54,7 +54,8 @@ display_match(record* db, char* filename)
 int
 main(int argc, char* argv[])
 {
-	printf("Vicious Scanner\n");
+	printf("CattyScan\n");
+	printf("Vicious software scanner for UNIX\n");
 	if (argc < 2) {
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
@@ -65,9 +66,9 @@ main(int argc, char* argv[])
 	char* home = getenv("HOME");
 	char databaseFile[PATH_MAX];
 	if (home != NULL)
-		snprintf(databaseFile, PATH_MAX, "%s/.vicious/vicious.db", home);
+		snprintf(databaseFile, PATH_MAX, "%s/.catty/vicious.db", home);
 
-	ViciousDB* database = new ViciousDB(databaseFile);
+	CattyDB* database = new CattyDB(databaseFile);
 	if (database->GetRecordCount() == 0) {
 		delete database;
 		return 0;

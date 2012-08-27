@@ -16,7 +16,7 @@ extern "C" {
 }
 
 
-#include "ViciousDB.h"
+#include "CattyDB.h"
 
 
 bool
@@ -37,8 +37,8 @@ process_file(char* filename)
 	char* home = getenv("HOME");
 	char databaseFile[PATH_MAX];
 	if (home != NULL)
-		snprintf(databaseFile, PATH_MAX, "%s/.vicious/rootkit.db", home);
-	ViciousDB* db = new ViciousDB(databaseFile);
+		snprintf(databaseFile, PATH_MAX, "%s/.catty/catty.db", home);
+	CattyDB* db = new CattyDB(databaseFile);
 
 	if (!db->EncodeFile(checksum, filename, st.st_size)) {
 		free(checksum);
@@ -65,7 +65,7 @@ int
 main(int argc, char* argv[])
 {
 	if (argc < 2) {
-		printf("Vicious fingerprint generator\n");
+		printf("Catty fingerprint\n");
 		printf("  Usage: %s file file ...\n", argv[0]);
 		return 1;
 	}
