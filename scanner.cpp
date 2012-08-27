@@ -39,7 +39,7 @@ display_match(record* db, char* filename)
 			printf("SHA256 signature scan\n");
 			break;
 		case RECORD_TEXT:
-			printf("Mallicious string search\n");
+			printf("Malicious string search\n");
 			break;
 		default:
 			printf("Unknown\n");
