@@ -24,6 +24,9 @@
 #define WARNING(x...) printf(" \033[33m! Warning:\033[0m " x)
 #define CLEAN(x...) printf(" \033[37m+ Scanned:\033[0m " x)
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+
 
 void
 display_match(record* db, char* filename)
@@ -49,12 +52,12 @@ display_match(record* db, char* filename)
 	printf("     * Description: %s\n", db->description);
 	printf("   ================================================================\n");
 }
- 
+
 
 int
 main(int argc, char* argv[])
 {
-	printf("CattyScan\n");
+	printf("CattyScan v%d.%d\n", VERSION_MAJOR, VERSION_MINOR);
 	printf("Vicious software scanner for UNIX\n");
 	if (argc < 2) {
 		printf("  Usage: %s file file ...\n", argv[0]);
