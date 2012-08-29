@@ -18,3 +18,18 @@ CattyScan supports the following detection methods:
 CattyScan supports the following compressed archives:
 *   TODO
 
+Where can I get the vicious software database?
+---
+While the CattyScan application is fully open source, the malicious
+software database is not. It takes large amounts of time to collect
+and analyze malicious software. It is extremely likely CattyScan.net
+will change a nominal fee for access to the latest vicious software
+database. (nominal is as it sounds, the fee will be extremely small
+and the licensing will be per CattyScan user (not per computer)).
+This fee is to cover the operation of the CattyScan network as well
+as upkeep of the malicious software database.
+
+During the extremely early development stage of CattyScan, a free
+malicious software database will be available for testing.
+
+For additional information, see http://cattyscan.net
