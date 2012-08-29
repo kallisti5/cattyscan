@@ -48,8 +48,9 @@ display_match(record* db, char* filename)
 			printf("Unknown\n");
 			break;
 	}
-	printf("     * Name: %s\n", db->name);
+	printf("     * UUID: %s\n", db->uuid);
 	printf("     * Description: %s\n", db->description);
+	printf("     * Threat: %d\n", db->threat);
 	printf("   ================================================================\n");
 }
 

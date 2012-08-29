@@ -18,13 +18,13 @@
 #define RECORD_TEXT				1 << 1
 
 /* Record limits */
-#define RECORD_MAX_NAME			32
 #define RECORD_MAX_DESCRIPTION	1024
 #define RECORD_MAX_VALUE		65535
 #define RECORD_MAX_TEXT			1024
-#define RECORD_MAX_TOTAL		RECORD_MAX_NAME \
+#define RECORD_MAX_UUID			36
+#define RECORD_MAX_TOTAL		RECORD_MAX_UUID \
 								+ RECORD_MAX_DESCRIPTION \
-								+ RECORD_MAX_VALUE + 4
+								+ RECORD_MAX_VALUE + 8
 
 /* Signature record */
 #define SHA_LENGTH_MAX			64 // SHA 512 would be the max
@@ -37,7 +37,8 @@ typedef long index_t;
 
 typedef struct {
 	int			type;
-	char		name[RECORD_MAX_NAME + 1];
+	int			threat;
+	char		uuid[RECORD_MAX_UUID + 1];
 	char		description[RECORD_MAX_DESCRIPTION + 1];
 	char		value[RECORD_MAX_VALUE + 1];
 } record;

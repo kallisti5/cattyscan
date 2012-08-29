@@ -53,6 +53,7 @@ CattyDB::CattyDB(char* filename)
 
 	fseek(handle, 0, SEEK_SET);
 
+//2|706e0b5d-178a-44cd-ae0e-59d31565446d|trixd00rd backdoor shell injection|1|747269786430307264
 	index_t index = 0;
 	char delim[] = "|";
 	while (fgets(buffer, RECORD_MAX_TOTAL, handle)) {
@@ -64,13 +65,13 @@ CattyDB::CattyDB(char* filename)
 		}
 		fRecord[index].type = atoi(result);
 
-		// Store record Name
+		// Store record UUID
 		result = strtok(NULL, delim);
 		if (result == NULL) {
 			fRows--;
 			continue;
 		}
-		strncpy(fRecord[index].name, result, RECORD_MAX_NAME);
+		strncpy(fRecord[index].uuid, result, RECORD_MAX_UUID);
 
 		// Store record description
 		result = strtok(NULL, delim);
@@ -78,7 +79,15 @@ CattyDB::CattyDB(char* filename)
 			fRows--;
 			continue;
 		}
-		strncpy(fRecord[index].description, result, RECORD_MAX_DESCRIPTION);		
+		strncpy(fRecord[index].description, result, RECORD_MAX_DESCRIPTION);
+
+		// Store record Threat
+		result = strtok(NULL, delim);
+		if (result == NULL) {
+			fRows--;
+			continue;
+		}
+		fRecord[index].threat = atoi(result);
 
 		// Store data
 		result = strtok(NULL, delim);
@@ -86,7 +95,7 @@ CattyDB::CattyDB(char* filename)
 			fRows--;
 			continue;
 		}
-		strncpy(fRecord[index].value, result, RECORD_MAX_VALUE);		
+		strncpy(fRecord[index].value, result, RECORD_MAX_VALUE);
 
 		index++;
 	}
@@ -222,14 +231,14 @@ CattyDB::ScanFile(char* filename)
 	index = CheckSignature(hash);
 
 	if (index >= 0) {
-		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
+		WARNING("%s: match! (%s)\n", filename, fRecord[index].description);
 		fclose(handle);
 		return index;
 	}
 
 	index = CheckString(handle);
 	if (index >= 0) {
-		WARNING("%s: match! (%s)\n", filename, fRecord[index].name);
+		WARNING("%s: match! (%s)\n", filename, fRecord[index].description);
 		fclose(handle);
 		return index;
 	}
