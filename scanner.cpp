@@ -85,7 +85,7 @@ main(int argc, char* argv[])
 
 	int found = 0;
 	printf(" + Scanning %d files...\n", fileCount);
-	while (currentFile > 1) {
+	while (currentFile > 0) {
 
 		struct stat sb;
 		stat(argv[currentFile], &sb);
