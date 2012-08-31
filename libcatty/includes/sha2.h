@@ -76,6 +76,13 @@ typedef unsigned char u_int8_t;		/* 1-byte  (8-bits)  */
 typedef unsigned int u_int32_t;		/* 4-bytes (32-bits) */
 typedef unsigned long long u_int64_t;	/* 8-bytes (64-bits) */
 #endif
+
+#if defined(__HAIKU__)
+typedef unsigned char u_int8_t;		/* 1-byte  (8-bits)  */
+typedef unsigned int u_int32_t;		/* 4-bytes (32-bits) */
+typedef unsigned long long u_int64_t;	/* 8-bytes (64-bits) */
+#endif
+
 /*
  * Most BSD systems already define u_intXX_t types, as does Linux.
  * Some systems, however, like Compaq's Tru64 Unix instead can use

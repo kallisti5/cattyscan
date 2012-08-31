@@ -85,8 +85,19 @@
  * made).
  */
 #if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
-#error Define BYTE_ORDER to be equal to either LITTLE_ENDIAN or BIG_ENDIAN
+	#if defined(__BYTE_ORDER__)
+		#define LITTLE_ENDIAN 1234
+		#define BIG_ENDIAN    4321
+		#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			#define BYTE_ORDER BIG_ENDIAN
+		#else
+			#define BYTE_ORDER LITTLE_ENDIAN
+		#endif
+	#else
+		#error Define BYTE_ORDER to be equal to either LITTLE_ENDIAN or BIG_ENDIAN
+	#endif
 #endif
+
 
 /*
  * Define the followingsha2_* types to types of the correct length on
