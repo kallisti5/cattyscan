@@ -6,5 +6,8 @@ CC = cc ;
 C++ = c++ ;
 LINK = c++ ;
 
-Main cattyscan : scanner.cpp ;
-LinkLibraries cattyscan : libcatty ;
+Main catty-cli : catty-cli.cpp ;
+LinkLibraries catty-cli : libcatty ;
+
+Main catty-fresh : catty-fresh.cpp ;
+LINKLIBS on catty-fresh = -lcurl ;
