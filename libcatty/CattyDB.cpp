@@ -35,6 +35,8 @@ CattyDB::CattyDB(char* filename)
 	FILE* handle = fopen(filename, "r");
 	if (handle == NULL) {
 		ERROR("%s: %s: %s\n", __func__, filename, strerror(errno));
+		ERROR("%s: You may want to try running catty-fresh first to "
+			"obtain a new vicious software database\n", __func__);
 		return;
 	}
 
@@ -53,7 +55,6 @@ CattyDB::CattyDB(char* filename)
 
 	fseek(handle, 0, SEEK_SET);
 
-//2|706e0b5d-178a-44cd-ae0e-59d31565446d|trixd00rd backdoor shell injection|1|747269786430307264
 	index_t index = 0;
 	char delim[] = "|";
 	while (fgets(buffer, RECORD_MAX_TOTAL, handle)) {
