@@ -58,13 +58,22 @@ main(int argc, char* argv[])
 {
 	printf("CattyScan CLI Scanner v%d.%d\n", VERSION_MAJOR, VERSION_MINOR);
 	printf("Vicious software scanner for UNIX\n");
-	if (argc < 2) {
-		printf("  Usage: %s file file ...\n", argv[0]);
+
+	long argumentCount = argc;
+	long optionCount = 0;
+	long argumentID = 1;
+	for (argumentID = 1; argumentID < argumentCount; argumentID++) {
+		if (argv[argumentID][0] == '-') {
+			optionCount++;
+		}
+	}
+
+	if (argumentCount - optionCount < 2) {
+		printf("  Usage: %s <options> file file ...\n", argv[0]);
 		return 1;
 	}
 
 	printf(" + Loading vicious software database...\n");
-
 	char* home = getenv("HOME");
 	char databaseFile[PATH_MAX];
 	if (home != NULL)
@@ -77,18 +86,23 @@ main(int argc, char* argv[])
 	} else
 		printf(" + [%ld records loaded]\n", database->GetRecordCount());
 
-	long fileCount = argc - 1;
-	long currentFile = argc - 1;
+	long currentFile = optionCount + 1;
+	long fileCount = argumentCount - currentFile;
 	long currentFileIndex = 0;
-
 	int found = 0;
+
+	TRACE("arguments: %ld; options: %ld; files: %ld\n", argumentCount,
+		optionCount, fileCount);
+
 	printf(" + Scanning %ld files...\n", fileCount);
-	while (currentFile > 0) {
+	while (currentFile < argumentCount) {
+		//TRACE("PROCESS: %ld of %ld - %s\n", currentFile,
+		//	argumentCount, argv[currentFile]);
 
 		struct stat sb;
 		stat(argv[currentFile], &sb);
 		if ((sb.st_mode & S_IFMT) != S_IFREG) {
-			currentFile--;
+			currentFile++;
 			continue;
 		}
 
@@ -99,11 +113,12 @@ main(int argc, char* argv[])
 			display_match(&dbRecord, argv[currentFile]);
 			found++;
 		}
-		currentFileIndex = fileCount - currentFile;
+
+		currentFileIndex++;
 
 		if (!(currentFileIndex % 100) && currentFileIndex != 0)
 			printf(" - %ld files scanned...\n", currentFileIndex);
-		currentFile--;
+		currentFile++;
 	}
 	delete database;
 
