@@ -87,7 +87,7 @@ obtainDB(char* url)
 
 	// Check for failures
 	if (res != CURLE_OK) {
-		ERROR("%s: LibCurl failure: %s\n", curl_easy_strerror(res));
+		ERROR("%s: LibCurl failure: %s\n", __func__, curl_easy_strerror(res));
 		return false;
 	}
 
