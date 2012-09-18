@@ -82,7 +82,7 @@ main(int argc, char* argv[])
 	long currentFileIndex = 0;
 
 	int found = 0;
-	printf(" + Scanning %d files...\n", fileCount);
+	printf(" + Scanning %ld files...\n", fileCount);
 	while (currentFile > 0) {
 
 		struct stat sb;
