@@ -1,4 +1,0 @@
-SubDir TOP libcatty ;
-SubDirHdrs [ FDirName $(TOP) libcatty includes ] ;
-
-Library libcatty : sha2.cpp CattyDB.cpp ;

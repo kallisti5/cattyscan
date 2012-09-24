@@ -1,0 +1,13 @@
+SConscript('libcatty/SConscript')
+
+Import("env")
+cattyfresh = env.Clone()
+cattyfresh.ParseConfig('pkg-config --cflags --libs libcurl')
+cattyfresh.Program(target = 'catty-fresh', source = 'catty-fresh.cpp')
+
+cattyqt = env.Clone()
+cattyqt.ParseConfig('pkg-config --cflags --libs QtGui')
+cattyqt.Program(target = 'catty-qt', source = 'catty-qt.cpp')
+
+cattycli = env.Clone()
+cattycli.Program(target = 'catty-cli', source = ['catty-cli.cpp', 'libcatty/libcatty.a'])
