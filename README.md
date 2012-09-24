@@ -18,6 +18,11 @@ CattyScan supports the following detection methods:
 CattyScan supports the following compressed archives:
 *   TODO
 
+How do I compile the CattyScan tools?
+---
+CattyScan uses the scons build system. Most users can enter
+the base cattyscan directory and run scons to build the toolset
+
 Where can I get the vicious software database?
 ---
 While the CattyScan application is fully open source, the malicious
