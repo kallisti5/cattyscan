@@ -220,6 +220,7 @@ CattyDB::ScanFile(char* filename)
 		return -1;
 	}
 
+	// *** Generate SHA hash and compare
 	char hash[SHA_LENGTH_MAX];
 	if (!GenerateSHA(handle, hash)) {
 		ERROR("%s: %s\n", filename, strerror(errno));
@@ -230,13 +231,13 @@ CattyDB::ScanFile(char* filename)
 	long index = -1;
 
 	index = CheckSignature(hash);
-
 	if (index >= 0) {
 		WARNING("%s: match! (%s)\n", filename, fRecord[index].description);
 		fclose(handle);
 		return index;
 	}
 
+	// *** Give file handle and do a binary grep through database
 	index = CheckString(handle);
 	if (index >= 0) {
 		WARNING("%s: match! (%s)\n", filename, fRecord[index].description);
