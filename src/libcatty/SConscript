@@ -1,3 +1,0 @@
-Import("env")
-
-env.StaticLibrary(target = 'libcatty', source = ['CattyDB.cpp', 'sha2.cpp'])
