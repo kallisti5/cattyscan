@@ -10,8 +10,6 @@
 #include <cstdlib>
 #include <stdint.h>
 
-#include "inventory_paths.h"
-
 
 #define SHA_LENGTH_MAX			64 // SHA 512 would be the max
 
@@ -27,9 +25,10 @@ public:
 							~InventoryEngine();
 
 			uint32_t		Check();
-			void			Index(uint32_t item_mask);
+			void			Baseline();
 private:
 			uint32_t		platform;
+			void			ProcessDirectory(const char* name, int level);
 			bool			GenerateSHA(const char* filename, char* result);
 };
 

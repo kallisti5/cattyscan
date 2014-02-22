@@ -67,31 +67,37 @@ InventoryEngine::Check()
 
 }
 
+void
+InventoryEngine::ProcessDirectory(const char* name, int level)
+{
+	DIR* dir = opendir(name);
+	if (dir == NULL)
+		return;
+	struct dirent* entry = readdir(dir);
+
+	do {
+		char cwpath[PATH_MAX];
+		int len = snprintf(cwpath, sizeof(cwpath) - 1,
+			"%s/%s", name, entry->d_name);
+		cwpath[len] = 0;
+
+		if (entry->d_type == DT_DIR) {
+			if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+				continue;
+			ProcessDirectory(cwpath, level + 1);
+		} else {
+			char hash[SHA_LENGTH_MAX];
+			if (!GenerateSHA(cwpath, hash)) {
+				continue;
+			} else {
+				printf("%s  %s\n", hash, cwpath);
+			}
+		}
+	} while (entry = readdir(dir));
+}
 
 void
-InventoryEngine::Index(uint32_t item_mask)
+InventoryEngine::Baseline()
 {
-	DIR *dir;
-	struct dirent *ent;
-
-	if ((dir = opendir ("/bin")) != NULL) {
-		/* print all the files and directories within directory */
-		while ((ent = readdir(dir)) != NULL) {
-
-			if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
-				continue;
-
-			char filename[PATH_MAX];
-			sprintf(filename, "/bin/%s", ent->d_name);
-			char hash[SHA_LENGTH_MAX];
-			if (!GenerateSHA(filename, hash)) {
-				printf("%s: %s\n", filename, strerror(errno));
-			}
-			printf("%s  %s\n", hash, filename);
-  		}
-  		closedir(dir);
-	} else {
-		/* could not open directory */
-		perror ("");
-	}
+	ProcessDirectory("/etc", 0);
 }

@@ -144,7 +144,9 @@ int main(int argc, char *argv[])
 	window.show();
 
 	InventoryEngine* engine = new InventoryEngine();
-	engine->Index(0);
+
+	// TODO: We just collect a baseline for now on every startup
+	engine->Baseline();
 
 	return app.exec();
 }
