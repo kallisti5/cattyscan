@@ -9,6 +9,8 @@
 
 #include <QtGui>
 
+#include "inventory/inventory.h"
+
 
 ScannerWindow::ScannerWindow()
 {
@@ -140,6 +142,9 @@ int main(int argc, char *argv[])
 
 	ScannerWindow window;
 	window.show();
+
+	InventoryEngine* engine = new InventoryEngine();
+	engine->Index(0);
 
 	return app.exec();
 }

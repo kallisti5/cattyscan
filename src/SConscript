@@ -1,4 +1,7 @@
 Import("env")
 cattyqt = env.Clone()
 cattyqt.ParseConfig('pkg-config --cflags --libs QtGui')
-cattyqt.Program(target = 'catty-qt', source = 'catty-qt.cpp')
+
+inventory_sources = ['inventory/inventory.cpp', 'inventory/sha2.cpp']
+
+cattyqt.Program(target = 'catty-qt', source = ['catty-qt.cpp', inventory_sources])
