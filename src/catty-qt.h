@@ -7,6 +7,8 @@
 #define CATTYQT_H
 
 
+#include "inventory/inventory.h"
+
 #include <QSystemTrayIcon>
 #include <QDialog>
 
@@ -15,6 +17,7 @@ class ScannerWindow : public QDialog
 {
 public:
 							ScannerWindow();
+							~ScannerWindow();
 
 			void			setVisible(bool visible);
 
@@ -30,6 +33,8 @@ private slots:
 private:
 			void			createActions();
 			void			createTrayIcon();
+
+			InventoryEngine* inventory;
 
 			QAction*		minimizeAction;
 			QAction*		restoreAction;

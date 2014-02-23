@@ -27,6 +27,7 @@ if not conf.CheckPKG('QtGui'):
 env = conf.Finish()
 
 env.Append(CPPPATH='#src/libcatty/includes/')
+env.Append(CPPFLAGS='-g')
 
 Export("env")
 SConscript('src/SConscript')

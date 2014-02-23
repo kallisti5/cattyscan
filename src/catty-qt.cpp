@@ -14,6 +14,8 @@
 
 ScannerWindow::ScannerWindow()
 {
+	inventory = new InventoryEngine();
+
 	createActions();
 	createTrayIcon();
 
@@ -33,6 +35,16 @@ ScannerWindow::ScannerWindow()
 	setIcon();
 
 	resize(550, 300);
+
+	// TODO: We just collect a baseline for now on every startup
+	inventory->Baseline();
+}
+
+
+ScannerWindow::~ScannerWindow()
+{
+	if (inventory != NULL)
+		delete inventory;
 }
 
 
@@ -142,11 +154,6 @@ int main(int argc, char *argv[])
 
 	ScannerWindow window;
 	window.show();
-
-	InventoryEngine* engine = new InventoryEngine();
-
-	// TODO: We just collect a baseline for now on every startup
-	engine->Baseline();
 
 	return app.exec();
 }

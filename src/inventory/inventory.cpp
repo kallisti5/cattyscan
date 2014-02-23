@@ -15,16 +15,77 @@
 #include "sha2.h"
 
 
+BaselineDatabase::BaselineDatabase()
+	:
+	fBaselineDBSize(BASELINE_DB_BLOCK),
+	fBaselineDBCount(0)
+{
+	fBaselineDB = (baseline_db*)malloc(sizeof(baseline_db) * fBaselineDBSize);
+}
+
+BaselineDatabase::~BaselineDatabase()
+{
+	printf("Closing baseline database...\n");
+	printf("Database size: %d\n", fBaselineDBSize);
+	printf("Database item count: %d\n", fBaselineDBCount);
+
+	if (fBaselineDB != NULL) {
+		free(fBaselineDB);
+		fBaselineDBSize = 0;
+		fBaselineDBCount = 0;
+	}
+}
+
+void
+BaselineDatabase::Add(const char* filename, char* hash)
+{
+	if (fBaselineDBCount >= fBaselineDBSize) {
+		printf("Baseline database full! Extending...\n");
+		fBaselineDBSize += BASELINE_DB_BLOCK;
+		baseline_db* newDB = (baseline_db*)realloc(fBaselineDB,
+			sizeof(baseline_db) * fBaselineDBSize);
+		if (newDB)
+			fBaselineDB = newDB;
+		else {
+			printf("Error allocating room for Baseline Database!\n");
+			return;
+		}
+	}
+
+	strcpy(fBaselineDB[fBaselineDBCount].path, filename);
+	strcpy(fBaselineDB[fBaselineDBCount].sha, hash);
+
+	printf("%s  %s\n", fBaselineDB[fBaselineDBCount].sha,
+		fBaselineDB[fBaselineDBCount].path);
+
+	fBaselineDBCount++;
+}
+
+
+bool
+BaselineDatabase::Lookup(const char* filename, char* hash)
+{
+
+}
+
+
+void
+BaselineDatabase::Empty()
+{
+
+}
+
+
 InventoryEngine::InventoryEngine()
 {
-	#warning TODO: Detect platform package manager
-	platform = PLATFORM_DEB;
+	fBaselineStore = new BaselineDatabase();
 }
 
 
 InventoryEngine::~InventoryEngine()
 {
-
+	if (fBaselineStore != NULL)
+		delete fBaselineStore;
 }
 
 
@@ -90,7 +151,7 @@ InventoryEngine::ProcessDirectory(const char* name, int level)
 			if (!GenerateSHA(cwpath, hash)) {
 				continue;
 			} else {
-				printf("%s  %s\n", hash, cwpath);
+				fBaselineStore->Add(cwpath, hash);
 			}
 		}
 	} while (entry = readdir(dir));
