@@ -15,19 +15,22 @@ conf = Configure(env, custom_tests = { 'CheckPKGConfig' : CheckPKGConfig,
 	'CheckPKG' : CheckPKG })
 
 if not conf.CheckPKGConfig('0.15.0'):
-	print 'pkg-config >= 0.15.0 not found.'
+	print('pkg-config >= 0.15.0 not found.')
 	Exit(1)
 if not conf.CheckPKG('libcurl'):
-	print 'libcurl not found.'
+	print('libcurl not found.')
 	Exit(1)
-if not conf.CheckPKG('QtGui'):
-	print 'Qt not found.'
+if not conf.CheckPKG('Qt5Gui'):
+	print('Qt not found.')
+	Exit(1)
+if not conf.CheckPKG('Qt5Widgets'):
+	print('Qt not found.')
 	Exit(1)
 
 env = conf.Finish()
 
 env.Append(CPPPATH='#src/libcatty/includes/')
-env.Append(CPPFLAGS='-g')
+env.Append(CPPFLAGS='-g -fPIC')
 
 Export("env")
 SConscript('src/SConscript')

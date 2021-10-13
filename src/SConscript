@@ -1,6 +1,7 @@
 Import("env")
 cattyqt = env.Clone()
-cattyqt.ParseConfig('pkg-config --cflags --libs QtGui')
+cattyqt.ParseConfig('pkg-config --cflags --libs Qt5Gui')
+cattyqt.ParseConfig('pkg-config --cflags --libs Qt5Widgets')
 
 inventory_sources = ['inventory/inventory.cpp', 'inventory/sha2.cpp']
 

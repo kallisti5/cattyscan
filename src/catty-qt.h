@@ -9,6 +9,8 @@
 
 #include "inventory/inventory.h"
 
+#include <QAction>
+#include <QMenu>
 #include <QSystemTrayIcon>
 #include <QDialog>
 

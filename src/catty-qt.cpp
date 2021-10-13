@@ -8,6 +8,8 @@
 #include "catty-qt.h"
 
 #include <QtGui>
+#include <QApplication>
+#include <QMessageBox>
 
 #include "inventory/inventory.h"
 
